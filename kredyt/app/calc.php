@@ -1,15 +1,29 @@
 <?php
 //Kontroler
 require_once dirname(__FILE__).'/../config.php';
-$ilosc = $_REQUEST['ilosc'];
-$lata = $_REQUEST['lata'];
-$oprocentowanie = $_REQUEST['oprocentowanie'];
 
+include _ROOT_PATH.'/app/security/check.php';
 
+//pobieranie parametrów
+function getParams(&$ilosc,&$lata,&$oprocentowanie) {
+$ilosc = isset($_REQUEST['ilosc']) ? $_REQUEST['ilosc'] : null;
+$lata = isset($_REQUEST['lata']) ?  $_REQUEST['lata'] : null;
+$oprocentowanie = isset($_REQUEST['oprocentowanie']) ?  $_REQUEST['oprocentowanie'] : null;
+}
 
+function out(&$param){
+	if (isset($param)){
+		echo $param;
+	}
+}
+
+//walidacja parametrów z przygotowaniem zmiennych dla widoku
+function validate(&$ilosc,&$lata,&$oprocentowanie,&$messages ){
+	//sprawdzenie przekazania parametrów
 if ( ! (isset($ilosc) && isset($lata) && isset($oprocentowanie))) {
 	//sytuacja wystąpi kiedy np. kontroler zostanie wywołany bezpośrednio - nie z formularza
-	$messages [] = 'Błędne wywołanie aplikacji. Brak jednego z parametrów.';
+	
+	return false;
 }
 
 // sprawdzenie, czy potrzebne wartości zostały przekazane
@@ -24,26 +38,32 @@ if ( $oprocentowanie == "") {
 }
 
 //zatrzymanie walidacji dalej gdy brak parametrów
-if (empty( $messages )) {
+if (count($messages)!= 0) return false;
 	
-	// sprawdzenie, czy $x i $y są liczbami całkowitymi
-	if (! is_numeric( $ilosc )) {
-		$messages [] = 'Ilosc nie jest liczbą całkowitą';
-	}
-	
-	if (! is_numeric( $lata )) {
-		$messages [] = 'Lata nie są liczbą całkowitą';
-	}	
-    if (! is_numeric( $oprocentowanie )) {
-		$messages [] = 'Oprocentowanie nie jest liczbą całkowitą';
-	}	
+// sprawdzenie, czy $x i $y są liczbami całkowitymi
+if (! is_numeric( $ilosc )) {
+	$messages [] = 'Ilosc nie jest liczbą całkowitą';
 }
+	
+if (! is_numeric( $lata )) {
+	$messages [] = 'Lata nie są liczbą całkowitą';
+}	
+if (! is_numeric( $oprocentowanie )) {
+	$messages [] = 'Oprocentowanie nie jest liczbą całkowitą';
+}
+
+if (count($messages)!= 0) return false;
+else return true;
+
+}
+
+
 
 
 //wykonaj zadanie jeśli wszystko w porządku
 
-if (empty ( $messages )) { // gdy brak błędów
-
+function oblicz(&$ilosc,&$lata,&$oprocentowanie,&$messages,&$miesieczna_stopa){
+	global $role;
 	//konwersja parametrów na int
 	$ilosc = intval($ilosc);
 	$lata = intval($lata);
@@ -54,7 +74,25 @@ if (empty ( $messages )) { // gdy brak błędów
 	 $miesioce = $lata * 12;
 
     //operacja
+	if ($role == 'admin'){
     $miesieczna_stopa = $ilosc * ($miesieczne_oprocentowanie + ($miesieczne_oprocentowanie / (pow(1 + $miesieczne_oprocentowanie, $miesioce) - 1)));
+	} else {
+		$messages [] = 'Tylko administrator może poznać miesięczną rate !';
+	}
+	
     //echo "Miesięczna rata: " . number_format($miesieczna_stopa, 2) . " zł";
+}
+
+//definicja kontrolera
+$ilosc = null;
+$lata = null;
+$oprocentowanie = null;
+$miesieczna_stopa = null;
+$messages = array();
+
+//pobierz parametry i wykonaj zadanie jeśli wszystko w porządku
+getParams($ilosc,$lata,$oprocentowanie);
+if ( validate($ilosc,$lata,$oprocentowanie,$messages) ) { // gdy brak błędów
+	oblicz($ilosc,$lata,$oprocentowanie,$messages,$miesieczna_stopa);
 }
 include 'calc_view.php';

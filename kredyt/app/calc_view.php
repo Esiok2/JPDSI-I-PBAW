@@ -1,22 +1,34 @@
 <!DOCTYPE HTML>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pl" lang="pl">
 <head>
     <meta charset="utf-8" />
     <title>Kalkulator kredytowy</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
 </head>
 <body>
-    <h1>Kalkulator kredytowy</h1>
-    <form action="<?php print(_APP_URL);?>/app/calc.php" method="get">
-        <label>Kwota kredytu:</label> <br>
-        <input type="text" name="ilosc" value="<?php if (isset($ilosc)) print($ilosc); ?>"><br>
 
-        <label>Liczba lat:</label> <br>
-        <input type="text" name="lata" value="<?php if (isset($lata)) print($lata); ?>"><br>
+<div style="width:90%; margin: 2em auto;">
+	<a href="<?php print(_APP_ROOT); ?>/app/security/logout.php" class="pure-button pure-button-active">Wyloguj</a>
+</div>
 
-        <label>Oprocentowanie (w %):</label> <br>
-        <input type="text" name="oprocentowanie" value="<?php if (isset($oprocentowanie)) print($oprocentowanie); ?>"><br>
 
-        <input type="submit" name="submit" value="Oblicz">
+
+    
+    <form action="<?php print(_APP_ROOT);?>/app/calc.php" method="post" class="pure-form pure-form-stacked">
+        <legend>Kalkulator kredytowy</legend>
+    <fieldset>
+        <label for="id_il">Kwota Kredytu:</label> <br>
+        <input id="id_il" type="text" name="ilosc" value="<?php out($ilosc);?>"><br>
+
+        <label for="id_ll">Liczba lat:</label> <br>
+        <input id="id_ll" type="text" name="lata" value="<?php out($lata); ?>"><br>
+
+        <label for="id_opr">Oprocentowanie (w %):</label> <br>
+        <input id="id_opr" type="text" name="oprocentowanie" value="<?php out($oprocentowanie); ?>"><br>
+
+        
+    </fieldset>
+    <input type="submit" name="submit" value="Oblicz" class="pure-form pure-form-stacked">
     </form>
 
 <?php
@@ -37,6 +49,7 @@ if (isset($messages)) {
 <?php echo 'Miesięczna rata: : '. number_format($miesieczna_stopa, 2) . " zł"; ?>
 </div>
 <?php } ?>
+
 
 </body>
 </html>
