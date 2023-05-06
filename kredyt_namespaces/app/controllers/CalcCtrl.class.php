@@ -55,10 +55,13 @@ class CalcCtrl {
 		
 		// sprawdzenie, czy potrzebne wartości zostały przekazane
 		if ($this->form->x == "") {
-			getMessages()->addError('Nie podano liczby 1');
+			getMessages()->addError('Nie podano kwoty');
 		}
 		if ($this->form->y == "") {
-			getMessages()->addError('Nie podano liczby 2');
+			getMessages()->addError('Nie podano okresu spłacania porzyczki');
+		}
+		if ($this->form->y == "") {
+			getMessages()->addError('Nie podano oprocentowania');
 		}
 		
 		// nie ma sensu walidować dalej gdy brak parametrów
@@ -71,6 +74,9 @@ class CalcCtrl {
 			
 			if (! is_numeric ( $this->form->y )) {
 				getMessages()->addError('Druga wartość nie jest liczbą całkowitą');
+			}
+			if (! is_numeric ( $this->form->op )) {
+				getMessages()->addError('Trzecia wartość nie jest liczbą całkowitą');
 			}
 		}
 		
@@ -89,27 +95,13 @@ class CalcCtrl {
 			//konwersja parametrów na int
 			$this->form->x = intval($this->form->x);
 			$this->form->y = intval($this->form->y);
+			$this->form->y = intval($this->form->op);
 			getMessages()->addInfo('Parametry poprawne.');
 				
 			//wykonanie operacji
-			switch ($this->form->op) {
-				case 'minus' :
-					$this->result->result = $this->form->x - $this->form->y;
-					$this->result->op_name = '-';
-					break;
-				case 'times' :
-					$this->result->result = $this->form->x * $this->form->y;
-					$this->result->op_name = '*';
-					break;
-				case 'div' :
-					$this->result->result = $this->form->x / $this->form->y;
-					$this->result->op_name = '/';
-					break;
-				default :
-					$this->result->result = $this->form->x + $this->form->y;
-					$this->result->op_name = '+';
-					break;
-			}
+			$result = ($this->form->x / $this->form->y / 12);
+			$result = $result + $result * $this->form->op / 100;
+			getMessages()->addInfo('Miesięczna rata wynosi: ' . $result . ' zł.');
 			
 			getMessages()->addInfo('Wykonano obliczenia.');
 		}
